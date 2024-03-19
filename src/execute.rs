@@ -51,6 +51,9 @@ where
             ExecuteMsg::ChangeMinter{new_minter} => {
                 self.change_minter(deps, info, new_minter)
             },
+            ExecuteMsg::ChangeBaseUri{new_base_uri} => {
+                self.change_base_uri(deps, info, new_base_uri)
+            },
             // ExecuteMsg::Edit(msg) => self.edit(deps, env, info, msg),
             ExecuteMsg::Mint(msg) => self.mint(deps, env, info, msg),
             ExecuteMsg::BatchMint(msg) => self.batch_mint(deps, env, info, msg),
@@ -106,6 +109,25 @@ where
 
     }
 
+    pub fn change_base_uri(
+        &self,
+        deps: DepsMut,
+        info: MessageInfo,
+        new_base_uri: String
+    ) -> Result<Response<C>, ContractError> {
+        let  minter = self.minter.load(deps.storage)?;
+        
+        if info.sender != minter {
+            return Err(ContractError::Unauthorized {});
+        }
+        let uri = new_base_uri.clone();
+        self.base_uri.save(deps.storage, &uri)?;
+        Ok(Response::new()
+            .add_attribute("action", "change_base_uri")
+            .add_attribute("base_uri", new_base_uri))
+
+    }
+
     
     // pub fn edit(
     //     &self,
@@ -146,12 +168,11 @@ where
         if info.sender != minter {
             return Err(ContractError::Unauthorized {});
         }
-
+        
         // create the token
         let token = TokenInfo {
             owner: deps.api.addr_validate(&msg.owner)?,
             approvals: vec![],
-            token_uri: msg.token_uri,
             extension: msg.extension,
         };
         self.tokens
@@ -189,7 +210,6 @@ where
             let token = TokenInfo {
                 owner: deps.api.addr_validate(&msg.owner[i].clone())?,
                 approvals: vec![],
-                token_uri: Some(msg.token_uri[i].clone()),
                 extension: msg.extension[i].clone(),
             };
             self.tokens

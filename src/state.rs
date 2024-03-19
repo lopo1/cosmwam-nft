@@ -15,6 +15,7 @@ where
     pub contract_info: Item<'a, ContractInfoResponse>,
     pub minter: Item<'a, Addr>,
     pub token_count: Item<'a, u64>,
+    pub base_uri: Item<'a, String>,
     /// Stored as (granter, operator) giving operator full control over granter's account
     pub operators: Map<'a, (&'a Addr, &'a Addr), Expiration>,
     pub tokens: IndexedMap<'a, &'a str, TokenInfo<T>, TokenIndexes<'a, T>>,
@@ -38,6 +39,7 @@ where
         Self::new(
             "nft_info",
             "minter",
+            "base_uri",
             "num_tokens",
             "operators",
             "tokens",
@@ -53,6 +55,7 @@ where
     fn new(
         contract_key: &'a str,
         minter_key: &'a str,
+        base_uri_key: &'a str,
         token_count_key: &'a str,
         operator_key: &'a str,
         tokens_key: &'a str,
@@ -64,6 +67,7 @@ where
         Self {
             contract_info: Item::new(contract_key),
             minter: Item::new(minter_key),
+            base_uri: Item::new(base_uri_key),
             token_count: Item::new(token_count_key),
             operators: Map::new(operator_key),
             tokens: IndexedMap::new(tokens_key, indexes),
@@ -86,6 +90,12 @@ where
         self.token_count.save(storage, &val)?;
         Ok(val)
     }
+
+    // pub fn base_uri(&self, storage: &dyn Storage) -> StdResult<String> {
+    //     let info = self.base_uri.load(storage)?;
+    //     // let val = self.base_uri(storage)?;
+    //     Ok(info)
+    // }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -98,7 +108,7 @@ pub struct TokenInfo<T> {
     /// Universal resource identifier for this NFT
     /// Should point to a JSON file that conforms to the ERC721
     /// Metadata JSON Schema
-    pub token_uri: Option<String>,
+    // pub token_uri: Option<String>,
 
     /// You can add any custom metadata here when you extend cw721-base
     pub extension: T,

@@ -126,6 +126,14 @@ impl Cw721Contract {
         self.query(querier, req)
     }
 
+    // pub fn base_uri<T: Into<String>, U: DeserializeOwned>(
+    //     &self,
+    //     querier: &QuerierWrapper,
+    // ) -> StdResult<String> {
+    //     let req = QueryMsg::BaseUri {  } ;
+    //     self.query(querier, req)
+    // }
+
     /// With metadata extension
     pub fn all_nft_info<T: Into<String>, U: DeserializeOwned>(
         &self,

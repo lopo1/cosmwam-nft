@@ -59,6 +59,11 @@ pub enum ExecuteMsg<T> {
         new_minter: Addr
     },
 
+    // change base uri
+    ChangeBaseUri {
+        new_base_uri: String
+    },
+
     /// Burn an NFT the sender has access to
     Burn { token_id: String },
 }
@@ -80,7 +85,7 @@ pub struct MintMsg<T> {
     /// Universal resource identifier for this NFT
     /// Should point to a JSON file that conforms to the ERC721
     /// Metadata JSON Schema
-    pub token_uri: Option<String>,
+    // pub token_uri: Option<String>,
     /// Any custom extension used by this contract
     pub extension: T,
 }
@@ -145,6 +150,9 @@ pub enum QueryMsg {
     /// but directly from the contract: `NftInfoResponse`
     NftInfo {
         token_id: String,
+    },
+
+    BaseUri {
     },
     /// With MetaData Extension.
     /// Returns the result of both `NftInfo` and `OwnerOf` as one query as an optimization

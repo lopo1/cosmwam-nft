@@ -33,11 +33,23 @@ where
 
     fn nft_info(&self, deps: Deps, token_id: String) -> StdResult<NftInfoResponse<T>> {
         let info = self.tokens.load(deps.storage, &token_id)?;
+        let base_uri_response = &self.base_uri.may_load(deps.storage)?;
+        let base_uri = match base_uri_response {
+            Some(uri) => uri.to_string(), // 如果有值，则转换为String
+            None => String::new(), // 如果没有值，则使用空字符串
+        };
+        let token_uri = format!("{}{}", base_uri, &token_id);
         Ok(NftInfoResponse {
-            token_uri: info.token_uri,
+            token_uri: Some(token_uri),
             extension: info.extension,
         })
     }
+
+    // fn base_uri(&self, deps: Deps) -> StdResult<String> {
+    //     // 假设 self.contract_info 包含 base_uri 字段
+    //     let info = self.base_uri.load(deps.storage)?;
+    //     Ok(info.base_uri) // 假设 ContractInfoResponse 有一个叫做 base_uri 的字段
+    // }
 
     fn owner_of(
         &self,
@@ -225,13 +237,19 @@ where
         include_expired: bool,
     ) -> StdResult<AllNftInfoResponse<T>> {
         let info = self.tokens.load(deps.storage, &token_id)?;
+        let base_uri_response = &self.base_uri.may_load(deps.storage)?;
+        let base_uri = match base_uri_response {
+            Some(uri) => uri.to_string(), // 如果有值，则转换为String
+            None => String::new(), // 如果没有值，则使用空字符串
+        };
+        let token_uri = format!("{}{}", base_uri, &token_id);
         Ok(AllNftInfoResponse {
             access: OwnerOfResponse {
                 owner: info.owner.to_string(),
                 approvals: humanize_approvals(&env.block, &info, include_expired),
             },
             info: NftInfoResponse {
-                token_uri: info.token_uri,
+                token_uri: Some(token_uri),
                 extension: info.extension,
             },
         })
@@ -249,12 +267,18 @@ where
             minter: minter_addr.to_string(),
         })
     }
+    
 
     pub fn query(&self, deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
         match msg {
             QueryMsg::Minter {} => to_json_binary(&self.minter(deps)?),
             QueryMsg::ContractInfo {} => to_json_binary(&self.contract_info(deps)?),
             QueryMsg::NftInfo { token_id } => to_json_binary(&self.nft_info(deps, token_id)?),
+            QueryMsg::BaseUri { } => {
+                // 直接创建包含基本URI的响应
+                let base_uri_response = &self.base_uri.may_load(deps.storage)?; // 这里替换为实际的URI字符串
+                to_json_binary(&base_uri_response)
+            },
             QueryMsg::OwnerOf {
                 token_id,
                 include_expired,
