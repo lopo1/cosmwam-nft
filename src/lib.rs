@@ -5,6 +5,7 @@ pub mod helpers;
 pub mod msg;
 mod query;
 pub mod state;
+mod tests;
 
 use schemars::JsonSchema;
 pub use crate::error::ContractError;

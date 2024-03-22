@@ -65,17 +65,7 @@ where
         })
     }
 
-    /**
-     * fn operator(
-        &self,
-        deps: Deps,
-        env: Env,
-        owner: String,
-        operator: String,
-        include_expired: bool,
-    ) -> StdResult<OperatorResponse>;
-     */
-
+   
      /// operator returns the approval status of an operator for a given owner if exists
     fn operator(
         &self,
