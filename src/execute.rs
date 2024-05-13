@@ -79,6 +79,7 @@ where
                 msg,
             } => self.send_nft(deps, env, info, contract, token_id, msg),
             ExecuteMsg::Burn { token_id } => self.burn(deps, env, info, token_id),
+            ExecuteMsg::Swap { token_id,chain } => self.swap(deps, env, info, token_id,chain),
         }
     }
 }
@@ -128,6 +129,34 @@ where
 
     }
 
+    fn swap(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        token_id: String,
+        chain: String,
+    ) -> Result<Response<C>, ContractError> {
+        if ONLYOWNER {
+            let minter = self.minter.load(deps.storage)?;
+    
+            if info.sender != minter {
+                return Err(ContractError::Unauthorized {});
+            }
+        }
+        let token = self.tokens.load(deps.storage, &token_id)?;
+        self.check_can_send(deps.as_ref(), &env, &info, &token)?;
+
+        self.tokens.remove(deps.storage, &token_id)?;
+        self.decrement_tokens(deps.storage)?;
+
+        Ok(Response::new()
+            .add_attribute("action", "swap")
+            .add_attribute("sender", info.sender)
+            .add_attribute("token_id", token_id)
+            .add_attribute("chain", chain)
+        )
+    }
     
     // pub fn edit(
     //     &self,

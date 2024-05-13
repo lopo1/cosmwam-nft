@@ -66,6 +66,8 @@ pub enum ExecuteMsg<T> {
 
     /// Burn an NFT the sender has access to
     Burn { token_id: String },
+    /// Swap an NFT the sender has access to
+    Swap { token_id: String,chain:String },
 }
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct EditMsg<T> {
