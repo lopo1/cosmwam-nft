@@ -412,12 +412,10 @@ where
         info: MessageInfo,
         operator: String,
     ) -> Result<Response<C>, ContractError> {
-        if ONLYOWNER {
-            let minter = self.minter.load(deps.storage)?;
+        let minter = self.minter.load(deps.storage)?;
     
-            if info.sender != minter {
-                return Err(ContractError::Unauthorized {});
-            }
+        if info.sender != minter {
+            return Err(ContractError::Unauthorized {});
         }
         let operator_addr = deps.api.addr_validate(&operator)?;
         self.operators
@@ -432,20 +430,15 @@ where
     fn burn(
         &self,
         deps: DepsMut,
-        env: Env,
+        _env: Env,
         info: MessageInfo,
         token_id: String,
     ) -> Result<Response<C>, ContractError> {
-        if ONLYOWNER {
-            let minter = self.minter.load(deps.storage)?;
-    
-            if info.sender != minter {
-                return Err(ContractError::Unauthorized {});
-            }
+        let minter = self.minter.load(deps.storage)?;
+        if info.sender != minter {
+            return Err(ContractError::Unauthorized {});
         }
-        let token = self.tokens.load(deps.storage, &token_id)?;
-        self.check_can_send(deps.as_ref(), &env, &info, &token)?;
-
+        
         self.tokens.remove(deps.storage, &token_id)?;
         self.decrement_tokens(deps.storage)?;
 
